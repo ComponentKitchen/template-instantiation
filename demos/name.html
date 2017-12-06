@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Last name, first name</title>
+
+  <template id="template">
+    {name.last}, {name.first}
+  </template>
+
+</head>
+
+<body>
+  <script type="module">
+    import * as updatable from '../src/updatable.js';
+    
+    const updatableTemplate = template.parse();
+    const { instance, updater } = updatableTemplate.instantiate({
+      name: {
+        first: 'Jane',
+        last: 'Doe'
+      }
+    });
+
+    document.body.appendChild(instance);
+
+    // Save a reference we can play with in the console.
+    window.updater = updater;
+  </script>
+</body>
+
+</html>

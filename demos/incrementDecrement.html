@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Increment/Decrement</title>
+
+  <template id="template">
+    <button id="decrement">-</button>
+    {value}
+    <button id="increment">+</button>
+  </template>
+
+  <script type="module">
+    import * as updatable from '../src/updatable.js';
+    
+    const updatableTemplate = template.parse();
+
+    class IncrementDecrement extends HTMLElement {
+
+      constructor() {
+        super();
+        this.value = 0;
+      }
+
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+        const { instance, updater } = updatableTemplate.instantiate(this);
+        this._updater = updater;
+        instance.querySelector('#decrement').addEventListener('click', () => {
+          this.value--;
+        });
+        instance.querySelector('#increment').addEventListener('click', () => {
+          this.value++;
+        });
+        this.shadowRoot.appendChild(instance);
+      }
+
+      get value() {
+        return this._value;
+      }
+      set value(value) {
+        this._value = value;
+        if (this._updater) {
+          this._updater.update(this);
+        }
+      }
+
+    }
+
+    customElements.define('increment-decrement', IncrementDecrement);
+  </script>
+          
+</head>
+
+<body>
+  <increment-decrement></increment-decrement>
+  <increment-decrement></increment-decrement>
+  <increment-decrement></increment-decrement>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Increment/Decrement (manual, no templates)</title>
+
+  <script type="module">
+    import { TextContentUpdater } from '../src/updatable.js';
+    
+    class IncrementDecrement extends HTMLElement {
+
+      constructor() {
+        super();
+        this.value = 0;
+      }
+
+      connectedCallback() {
+        this.attachShadow({ mode: 'open' });
+
+        // Populate the shadow by hand.
+        const decrement = document.createElement('button');
+        decrement.textContent = '-';
+        decrement.addEventListener('click', () => {
+          this.value--;
+        });
+        const text = new Text();
+        const increment = document.createElement('button');
+        increment.textContent = '+';
+        increment.addEventListener('click', () => {
+          this.value++;
+        });
+        this.shadowRoot.appendChild(decrement);
+        this.shadowRoot.appendChild(text);
+        this.shadowRoot.appendChild(increment);
+
+        // Create an updater by hand.
+        this._updater = new TextContentUpdater(text);
+
+        // Apply initial values.
+        this._updater.update(this.value);
+      }
+
+      get value() {
+        return this._value;
+      }
+      set value(value) {
+        this._value = value;
+        if (this._updater) {
+          this._updater.update(this.value);
+        }
+      }
+
+    }
+
+    customElements.define('increment-decrement', IncrementDecrement);
+  </script>
+          
+</head>
+
+<body>
+  <increment-decrement></increment-decrement>
+  <increment-decrement></increment-decrement>
+  <increment-decrement></increment-decrement>
+</body>
+
+</html>
