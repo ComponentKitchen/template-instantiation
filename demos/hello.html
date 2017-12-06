@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>HTML Template Instantiation</title>
 
+  <script type="module" src="../src/polyfill.js"></script>
+
   <template id="template">
     Hello, {name}.
   </template>
@@ -14,10 +16,8 @@
 
 <body>
   <script type="module">
-    import * as updatable from '../src/updatable.js';
-
-    const updatableTemplate = template.parse();
-    const { instance, updater } = updatableTemplate.instantiate({
+    const parameterizedTemplate = template.parse();
+    const { instance, updater } = parameterizedTemplate.instantiate({
       name: 'world'
     });
 

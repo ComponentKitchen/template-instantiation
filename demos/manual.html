@@ -7,7 +7,7 @@
   <title>Increment/Decrement (manual, no templates)</title>
 
   <script type="module">
-    import { TextContentUpdater } from '../src/updatable.js';
+    import { TextContentUpdater } from '../src/updaters.js';
     
     class IncrementDecrement extends HTMLElement {
 
@@ -25,15 +25,22 @@
         decrement.addEventListener('click', () => {
           this.value--;
         });
+        const space1 = new Text(' ');
         const text = new Text();
+        const space2 = new Text(' ');
         const increment = document.createElement('button');
         increment.textContent = '+';
         increment.addEventListener('click', () => {
           this.value++;
         });
-        this.shadowRoot.appendChild(decrement);
-        this.shadowRoot.appendChild(text);
-        this.shadowRoot.appendChild(increment);
+        const elements = [
+          decrement,
+          space1,
+          text,
+          space2,
+          increment
+        ];
+        elements.forEach(element => this.shadowRoot.appendChild(element));
 
         // Create an updater by hand.
         this._updater = new TextContentUpdater(text);

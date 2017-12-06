@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Increment/Decrement</title>
 
+  <script type="module" src="../src/polyfill.js"></script>
+  
   <template id="template">
     <button id="decrement">-</button>
     {value}
@@ -13,8 +15,6 @@
   </template>
 
   <script type="module">
-    import * as updatable from '../src/updatable.js';
-    
     const updatableTemplate = template.parse();
 
     class IncrementDecrement extends HTMLElement {
