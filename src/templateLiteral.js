@@ -1,8 +1,17 @@
 import HTMLParameterizedTemplateElement from '../src/HTMLParameterizedTemplateElement.js';
 import { parse } from '../src/parser.js';
+import { TextContentUpdater, MultiUpdater } from '../src/updaters.js';
 
 
+// Constants used by our simple parser.
+const marker = '**marker**';
+const commentText = `<!--${marker}-->`;
+
+// Templates we've constructed for tagged template literals we've seen.
 const templates = new Map();
+
+// Updaters for containers we've rendered.
+const updaters = new WeakMap();
 
 
 /*
@@ -22,10 +31,11 @@ export function html(strings, ...values) {
     // Remember the parameterized template for next time.
     templates.set(strings, template);
   }
-  return {
+  const litResult = {
     template,
     values
   };
+  return litResult;
 }
 
 
@@ -37,17 +47,19 @@ export function html(strings, ...values) {
  */
 export function render(litResult, container) {
   const { template, values } = litResult;
-  if (!container._updater) {
+  if (!updaters.get(container)) {
     // Initial render.
+    // Remove existing content.
     while (container.childNodes.length > 0) {
       container.childNodes[0].remove();
     }
+    // Instantiate and save our updater for later renders.
     const { instance, updater } = template.instantiate(values);
     container.appendChild(instance);
-    container._updater = updater;
+    updaters.set(container, updater);
   } else {
     // Subsequent render, just update.
-    container._updater.update(values);
+    updaters.get(container).update(values);
   }
 }
 
@@ -57,34 +69,66 @@ export function render(litResult, container) {
  * return a parameterized template that can be instantiated (with data)
  * to obtain complete HTML.
  * 
- * For this simple proof of concept, we don't do our own parsing. Instead, we
- * cheat and create equivalent HTML which our parameterized template parser can
- * handle, then fix up the result. A real implementation would do its own
- * parsing.
+ * This is a limited, quick-and-dirty implementation that can only handle
+ * substitutions into text nodes, not attributes or node sequences.
  */
 function templateFromHTMLFragments(strings) {
+
   // Concatenate the strings to form HTML.
-  // Insert placeholders of the form "placeholder0" between the strings.
+  // Insert comments to mark those points in the tree that will need updaters.
   const html = strings.map((string, index) =>
-    `${string}${index < strings.length - 1 ? `{placeholder${index}}` : ''}`
+    `${string}${index < strings.length - 1 ? commentText : ''}`
   ).join('');
 
-  // Parse the parameterized HTML.
+  // Convert the HTML to a document fragment.
   const template = document.createElement('template');
   template.innerHTML = html;
-  const { parsed, unboundUpdaters } = parse(template.content);
+  const fragment = template.content;
 
-  // The updaters will look for expressions of the form "placeholder0". The
-  // template literal function expects an array of values, so we fix up these
-  // updaters to look for expressions like "0", which will result in grabbing
-  // the corresponding array value.
-  unboundUpdaters.forEach((updater, index) => {
-    updater.expression = index.toString();
+  // Walk the fragment to find the marker nodes.
+  const markers = [...findMarkers(fragment)];
+
+  // Create an updater for each marker.
+  const unboundUpdaters = markers.map((marker, index) => {
+    return {
+      address: findNodeAddress(fragment, marker),
+      updaterClass: TextContentUpdater,
+      expression: index.toString()
+    };
   });
 
+  // Replace the markers with text nodes for the updaters to update.
+  markers.forEach(marker =>
+    marker.parentNode.replaceChild(new Text(), marker)
+  );
+  
   // Create and return a parameterized template.
   const parameterizedTemplate = new HTMLParameterizedTemplateElement();
-  parameterizedTemplate.content.appendChild(parsed);
+  parameterizedTemplate.content.appendChild(fragment);
   parameterizedTemplate.unboundUpdaters = unboundUpdaters;
   return parameterizedTemplate;
+}
+
+
+// Generate the set of marker nodes in the given fragment.
+function* findMarkers(fragment) {
+  const walker = document.createTreeWalker(fragment, NodeFilter.SHOW_COMMENT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.nodeValue === marker) {
+      yield node;
+    }
+  }
+}
+
+
+// Given a node inside the tree owned by root, return its address.
+function findNodeAddress(root, node) {
+  if (node === root) {
+    return [];
+  } else {
+    const base = findNodeAddress(root, node.parentNode);
+    const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
+    return base.concat([index]);
+  }
 }
