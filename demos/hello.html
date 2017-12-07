@@ -24,6 +24,11 @@
     document.body.appendChild(instance);
 
     // Save a reference we can play with in the console.
+    // Entering a console command like
+    //
+    //     > updater.update({ name: 'Jane' })
+    //
+    // will update the document with the new name.
     window.updater = updater;
   </script>
 </body>
