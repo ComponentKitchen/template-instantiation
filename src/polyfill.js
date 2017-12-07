@@ -1,5 +1,5 @@
 import { parse } from './parser.js';
-import HTMLParamaterizedTemplateElement from './HTMLParameterizedTemplateElement.js';
+import HTMLParameterizedTemplateElement from './HTMLParameterizedTemplateElement.js';
 
 
 /*
@@ -9,12 +9,12 @@ import HTMLParamaterizedTemplateElement from './HTMLParameterizedTemplateElement
  * template.
  */
 window.HTMLTemplateElement.prototype.parse = function() {
-  const { parsed, unboundUpdaters } = parse(this.content);
-  const parameterized = new HTMLParamaterizedTemplateElement();
+  const { parsed, updaterDescriptors } = parse(this.content);
+  const parameterized = new HTMLParameterizedTemplateElement();
   parameterized.content.appendChild(parsed);
-  parameterized.unboundUpdaters = unboundUpdaters;
+  parameterized.updaterDescriptors = updaterDescriptors;
   return parameterized;
 };
 
 
-window.HTMLParamaterizedTemplateElement = HTMLParamaterizedTemplateElement;
+window.HTMLParameterizedTemplateElement = HTMLParameterizedTemplateElement;

@@ -1,28 +1,41 @@
-import { TextContentUpdater } from './updaters.js';
+/*
+ * Default template parser
+ */
 
 
-export function parse(node, address = []) {
+import { TextContentUpdater, UpdaterDescriptor } from './updaters.js';
+
+
+export function parse(node) {
   if (node instanceof Text) {
-    return parseTextNode(node, address);
+    return parseTextNode(node);
   } else {
-    const clone = node.cloneNode(false);
-    const unboundUpdaters = [];
-    let index = 0;
-    node.childNodes.forEach(child => {
-      const childAddress = address.concat(index);
-      const { parsed: parsedChild, unboundUpdaters: childUpdaters } = parse(child, childAddress);
-      // Adjust addresses.
-      childUpdaters.forEach(childUpdater => {
-        const address = childUpdater.address;
-        address[address.length - 1] += index
+    const parsed = node.cloneNode(false);
+    const updaterDescriptors = [];
+    let offset = 0;
+    node.childNodes.forEach((child) => {
+      const { parsed: parsedChild, updaterDescriptors: childUpdaterDescriptors } = parse(child);
+      // Adjust the addresses in the returned descriptors to account for their
+      // actual position in the parsed tree.
+      childUpdaterDescriptors.forEach(updaterDescriptor => {
+        if (parsedChild instanceof DocumentFragment) {
+          // Will be spliced in; shift address.
+          updaterDescriptor.address[0] += offset;
+        } else {
+          // Will be added as a child, add one level of hierarchy to address.
+          updaterDescriptor.address.unshift(offset);
+        }
       });
-      index += parsedChild.childNodes.length;
-      clone.appendChild(parsedChild);
-      unboundUpdaters.splice(unboundUpdaters.length, 0, ...childUpdaters);
+      offset += parsedChild instanceof DocumentFragment ?
+        parsedChild.childNodes.length :
+        1;
+      parsed.appendChild(parsedChild);
+      updaterDescriptors.splice(updaterDescriptors.length, 0, ...childUpdaterDescriptors);
     });
+
     return {
-      parsed: clone,
-      unboundUpdaters
+      parsed,
+      updaterDescriptors
     };
   }
 }
@@ -30,25 +43,23 @@ export function parse(node, address = []) {
 
 export function parseTextNode(node) {
   const tokens = tokenizeText(node.textContent);
-  const unboundUpdaters = [];
+  const updaterDescriptors = [];
   const fragment = document.createDocumentFragment();
   tokens.map((token, index) => {
     const child = new Text();
     if (token.static) {
       child.textContent = token.static;
     } else {
-      const unboundUpdater = {
-        address: [index],
-        updaterClass: TextContentUpdater,
-        expression: token.expression
-      };
-      unboundUpdaters.push(unboundUpdater);
+      const address = [index];
+      const expression = token.expression;
+      const updaterDescriptor = new UpdaterDescriptor(address, TextContentUpdater, expression)
+      updaterDescriptors.push(updaterDescriptor);
     }
     fragment.appendChild(child);
   });
   return {
     parsed: fragment,
-    unboundUpdaters
+    updaterDescriptors
   };
 }
 

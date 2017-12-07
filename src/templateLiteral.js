@@ -6,9 +6,10 @@
  */
 
 
-import HTMLParameterizedTemplateElement from '../src/HTMLParameterizedTemplateElement.js';
-import { parse } from '../src/parser.js';
-import { TextContentUpdater, MultiUpdater } from '../src/updaters.js';
+import { findNodeAddress } from './nodeAddress.js';
+import { parse } from './parser.js';
+import { TextContentUpdater, UpdaterDescriptor } from './updaters.js';
+import HTMLParameterizedTemplateElement from './HTMLParameterizedTemplateElement.js';
 
 
 // Constants used by our simple parser.
@@ -97,12 +98,10 @@ function templateFromHTMLFragments(strings) {
   const markers = [...findMarkers(fragment)];
 
   // Create an updater for each marker.
-  const unboundUpdaters = markers.map((marker, index) => {
-    return {
-      address: findNodeAddress(fragment, marker),
-      updaterClass: TextContentUpdater,
-      expression: index.toString()
-    };
+  const updaterDescriptors = markers.map((marker, index) => {
+    const address = findNodeAddress(fragment, marker);
+    const expression = index.toString();
+    return new UpdaterDescriptor(address, TextContentUpdater, expression);
   });
 
   // Replace the markers with text nodes for the updaters to update.
@@ -113,7 +112,7 @@ function templateFromHTMLFragments(strings) {
   // Create and return a parameterized template.
   const parameterizedTemplate = new HTMLParameterizedTemplateElement();
   parameterizedTemplate.content.appendChild(fragment);
-  parameterizedTemplate.unboundUpdaters = unboundUpdaters;
+  parameterizedTemplate.updaterDescriptors = updaterDescriptors;
   return parameterizedTemplate;
 }
 
@@ -126,17 +125,5 @@ function* findMarkers(fragment) {
     if (node.nodeValue === marker) {
       yield node;
     }
-  }
-}
-
-
-// Given a node inside the tree owned by root, return its address.
-function findNodeAddress(root, node) {
-  if (node === root) {
-    return [];
-  } else {
-    const base = findNodeAddress(root, node.parentNode);
-    const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-    return base.concat([index]);
   }
 }

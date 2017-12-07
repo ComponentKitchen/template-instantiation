@@ -1,7 +1,8 @@
-import { MultiUpdater } from './updaters.js';
+import { UpdaterCollection } from './updaters.js';
+import { nodeAtAddress } from './nodeAddress.js';
 
 
-export default class HTMLParamaterizedTemplateElement extends HTMLElement {
+export default class HTMLParameterizedTemplateElement extends HTMLElement {
 
   constructor() {
     super();
@@ -24,13 +25,11 @@ export default class HTMLParamaterizedTemplateElement extends HTMLElement {
 
   instantiate(data) {
     const instance = document.importNode(this.content, true);
-    // Bind updaters.
-    const updaters = this.unboundUpdaters.map(unboundUpdater => {
-      const { address, updaterClass, expression } = unboundUpdater;
-      const element = elementAtAddress(instance, address);
-      return new updaterClass(element, expression);
-    });
-    const updater = new MultiUpdater(updaters);
+    // Attach updaters.
+    const updaters = this.updaterDescriptors.map(updaterDescriptor =>
+      updaterDescriptor.createUpdater(instance)
+    );
+    const updater = new UpdaterCollection(updaters);
     if (data != null) {
       updater.update(data);
     }
@@ -40,16 +39,4 @@ export default class HTMLParamaterizedTemplateElement extends HTMLElement {
 }
 
 
-function elementAtAddress(node, address) {
-  if (address.length === 0) {
-    return node;
-  } else {
-    const index = address[0];
-    const rest = address.slice(1);
-    const element = node.childNodes[index];
-    return elementAtAddress(element, rest);
-  }
-}
-
-
-customElements.define('parameterized-template', HTMLParamaterizedTemplateElement);
+customElements.define('parameterized-template', HTMLParameterizedTemplateElement);

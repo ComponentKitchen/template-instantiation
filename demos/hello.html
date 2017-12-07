@@ -8,7 +8,7 @@
 
   <script type="module" src="../src/polyfill.js"></script>
 
-  <template id="template">
+  <template>
     Hello, {name}.
   </template>
           
@@ -16,6 +16,7 @@
 
 <body>
   <script type="module">
+    const template = document.querySelector('template');
     const parameterizedTemplate = template.parse();
     const { instance, updater } = parameterizedTemplate.instantiate({
       name: 'world'
