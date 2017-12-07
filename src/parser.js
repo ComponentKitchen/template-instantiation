@@ -32,7 +32,7 @@ export function parseTextNode(node) {
   const tokens = tokenizeText(node.textContent);
   const unboundUpdaters = [];
   const fragment = document.createDocumentFragment();
-  const children = tokens.map((token, index) => {
+  tokens.map((token, index) => {
     const child = new Text();
     if (token.static) {
       child.textContent = token.static;

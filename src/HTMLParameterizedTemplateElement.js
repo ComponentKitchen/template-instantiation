@@ -1,7 +1,27 @@
 import { MultiUpdater } from './updaters.js';
 
 
-export default class HTMLParamaterizedTemplateElement extends HTMLTemplateElement {
+export default class HTMLParamaterizedTemplateElement extends HTMLElement {
+
+  constructor() {
+    super();
+    this.template = document.createElement('template');
+  }
+
+  get content() {
+    return this.template.content;
+  }
+  set content(content) {
+    this.template.content = content;
+  }
+
+  get innerHTML() {
+    return this.template.innerHTML;
+  }
+  set innerHTML(innerHTML) {
+    this.template.innerHTML = innerHTML;
+  }
+
   instantiate(data) {
     const instance = document.importNode(this.content, true);
     // Bind updaters.
@@ -16,6 +36,7 @@ export default class HTMLParamaterizedTemplateElement extends HTMLTemplateElemen
     }
     return { instance, updater };
   }
+
 }
 
 
@@ -29,3 +50,6 @@ function elementAtAddress(node, address) {
     return elementAtAddress(element, rest);
   }
 }
+
+
+customElements.define('parameterized-template', HTMLParamaterizedTemplateElement);
