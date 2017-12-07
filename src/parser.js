@@ -52,7 +52,7 @@ export function parseTextNode(node) {
     } else {
       const address = [index];
       const expression = token.expression;
-      const updaterDescriptor = new UpdaterDescriptor(address, TextContentUpdater, expression)
+      const updaterDescriptor = new UpdaterDescriptor(address, TextContentUpdater, expression);
       updaterDescriptors.push(updaterDescriptor);
     }
     fragment.appendChild(child);
@@ -74,7 +74,7 @@ export function tokenizeText(text) {
     if (start !== end) {
       // Add text before placeholder.
       tokens.push({
-        static: text.substr(start, end)
+        static: text.substring(start, end)
       });
     }
     // Add placeholder.
@@ -86,7 +86,7 @@ export function tokenizeText(text) {
   if (start < text.length) {
     // Add text after last placeholder.
     tokens.push({
-      static: text.substr(start)
+      static: text.substring(start)
     });
   }
   return tokens;
@@ -94,11 +94,13 @@ export function tokenizeText(text) {
 
 
 function* nextPlaceholder(text) {
-  // Quick and dirty ID matching -- doesn't support Unicode yet.
-  // It *does* support dot '.' operator for object members.
+  // Match placeholders containing expressions.
+  // An expression is a set of one or more JavaScript IDs delimited by dots.
+  // The ID regex is quick and dirty, and does not match all IDs allowed
+  // by JavaScript, notably those with Unicode characters.
+  // This trims whitespace before and after the expression.
+  const placeholderRegex = /{\s*([a-zA-Z_$][0-9a-zA-Z_$]*(?:\.[a-zA-Z_$][0-9a-zA-Z_$]*)*)\s*}/g;
 
-  // TODO: Use non-capture group for loop
-  const placeholderRegex = /{\s*([a-zA-Z_$][\.0-9a-zA-Z_$]*)\s*}/g;
   let match = placeholderRegex.exec(text);
   while (match) {
     yield match;

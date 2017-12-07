@@ -15,6 +15,7 @@
   </template>
 
   <script type="module">
+    // Component template only needs to be parsed once.
     const parameterizedTemplate = template.parse();
 
     class IncrementDecrement extends HTMLElement {
@@ -26,6 +27,7 @@
 
       connectedCallback() {
         this.attachShadow({ mode: 'open' });
+        // Create a new instance, and an updater that can update it with data.
         const { instance, updater } = parameterizedTemplate.instantiate(this);
         this._updater = updater;
         instance.querySelector('#decrement').addEventListener('click', () => {

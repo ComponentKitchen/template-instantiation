@@ -1,8 +1,8 @@
 /*
  * A sample tagged template literal library inspired by lit-html.
  * 
- * This uses its own parser, but generates HTMLParameterizedTemplateElement
- * instances that would be shared with the browser.
+ * This uses its own parser, but creates the same
+ * HTMLParameterizedTemplateElement objects defined by the browser.
  */
 
 

@@ -19,18 +19,15 @@ export class NodeUpdater {
 }
 
 
+// TODO
 // export class AttributeValueUpdater extends NodeUpdater {
-//   constructor(address, attributeName, parts, expressions) {
-//     super(address);
-//     this.parts = parts;
-//     this.expressions = expressions;
+//   constructor(node, attributeName, tokens) {
+//     super(node);
+//     this.attributeName = attributeName;
+//     this.tokens = tokens;
 //   }
 //   update(value) {
-//     this.expressions.forEach((expression, index) => {
-//       if (expression) {
-//         part[index] = this.evaluate(expression, data);
-//       }
-//     });
+//     const parts = ...
 //     return parts.join('');
 //   }
 // }
