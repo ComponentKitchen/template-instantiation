@@ -1,3 +1,11 @@
+/*
+ * A sample tagged template literal library inspired by lit-html.
+ * 
+ * This uses its own parser, but generates HTMLParameterizedTemplateElement
+ * instances that would be shared with the browser.
+ */
+
+
 import HTMLParameterizedTemplateElement from '../src/HTMLParameterizedTemplateElement.js';
 import { parse } from '../src/parser.js';
 import { TextContentUpdater, MultiUpdater } from '../src/updaters.js';
