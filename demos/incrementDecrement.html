@@ -15,7 +15,7 @@
   </template>
 
   <script type="module">
-    const updatableTemplate = template.parse();
+    const parameterizedTemplate = template.parse();
 
     class IncrementDecrement extends HTMLElement {
 
@@ -26,7 +26,7 @@
 
       connectedCallback() {
         this.attachShadow({ mode: 'open' });
-        const { instance, updater } = updatableTemplate.instantiate(this);
+        const { instance, updater } = parameterizedTemplate.instantiate(this);
         this._updater = updater;
         instance.querySelector('#decrement').addEventListener('click', () => {
           this.value--;
