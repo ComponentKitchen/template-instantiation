@@ -18,7 +18,7 @@ document.body.appendChild(content);
 content.update({ name: 'Rachel Garcia' });
 ```
 
-**Suggestion:** Handle syntax parsing, instantiation, and updating as conceptually separate steps. Using the same template as above...
+**Idea:** Handle syntax parsing, instantiation, and updating as conceptually separate steps. Using the same template as above...
 
 ```js
 // Parse a template with mustache syntax to obtain a parameterized template.
@@ -34,7 +34,11 @@ updater.update({ name: 'Rachel Garcia' });
 ```
 
 
-## Updaters
+## Parsing templates
+
+Parsing `<template>` elements would work the same way as in the current proposal with the same mustache syntax. The chief difference is that the `parse()` operation returns a completely parsed _parameterized template_ that can be instantiated.
+
+The chief advantage of this is that parameterized templates could be constructed by other means as well, not just `<template>` elements.
 
 
 ## Parameterized templates
@@ -42,7 +46,7 @@ updater.update({ name: 'Rachel Garcia' });
 UpdaterDescriptor
 
 
-## Parsing templates
+## Updaters
 
 
 ## Use in other libraries
