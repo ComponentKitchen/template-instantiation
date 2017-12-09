@@ -19,12 +19,12 @@ document.body.appendChild(instance);
 instance.update({ name: 'Rachel Garcia' });
 ```
 
-This is powerful, but the API is slightly awkward. As [noted](https://github.com/w3c/webcomponents/issues/685), the code uses the template instance in two very different ways. First it holds the nodes with the initial set of values. Then, after it's been added to the document, the template instance is used as an indirect means to talk to the previously-held nodes.
+This is powerful, but the API is slightly awkward. As [noted](https://github.com/w3c/webcomponents/issues/685), this model uses the template instance in two very different ways. First it holds the nodes with the initial set of values. Then, after it's been added to the document, the template instance is used as an indirect means to talk to the previously-held nodes.
 
 It feels like there are multiple concepts at work here. Perhaps we can tease these out in the API.
 
 
-**Suggestion:** Handle syntax parsing, instantiation, and updating as conceptually separate steps. Using the same template as above:
+**Suggestion:** Handle syntax parsing, instantiation, and updating as conceptually separate objects. Using the same template as above:
 
 ```js
 // Parse a template with mustache syntax to obtain an element factory.
