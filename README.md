@@ -13,10 +13,10 @@ The HTML Template Instantation proposal binds together several concepts: 1) a st
 
 ```js
 // Initial population from template.
-let instance = template.createInstance({ name: 'Jane Doe' });
+let instance = template.createInstance({ name: 'world' });
 document.body.appendChild(instance);
 // Later on, update.
-instance.update({ name: 'Rachel Garcia' });
+instance.update({ name: 'Jane' });
 ```
 
 This is powerful, but the API is slightly awkward. As [noted](https://github.com/w3c/webcomponents/issues/685), this model uses the template instance in two very different ways. First it holds the nodes with the initial set of values. Then, after it's been added to the document, the template instance is used as an indirect means to talk to the previously-held nodes.
@@ -30,11 +30,11 @@ It feels like there are multiple concepts at work here. Perhaps we can tease the
 // Parse a template with mustache syntax to obtain an element factory.
 const factory = new ElementFactory(template);
 // Use the factory to obtain both an instance and updater.
-const { instance, updater } = factory.instantiate({ name: 'Jane Doe' });
+const { instance, updater } = factory.instantiate({ name: 'world' });
 // Add the instance to the document.
 document.body.appendChild(instance);
 // Later on, update.
-updater.update({ name: 'Rachel Garcia' });
+updater.update({ name: 'Jane' });
 ```
 
 [Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/hello.html) ([Source](./demos/hello.html))
@@ -66,8 +66,8 @@ The resulting factory holds the information necessary to instantiate new element
 An `ElementFactory` creates a new instance via its `instantiate()` method. This returns _two_ objects: a new instance, and a `NodeUpdater` object (described below) that can update that particular instance.
 
 ```js
-const { instance, updater } = factory.instantiate({ name: 'Jane Doe' });
-updater.update({ name: 'Rachel Garcia' });
+const { instance, updater } = factory.instantiate({ name: 'world' });
+updater.update({ name: 'Jane' });
 ```
 
 
@@ -82,7 +82,7 @@ For example, [lit-html](https://github.com/PolymerLabs/lit-html/) is an example 
 import { html, render } from '../src/lit-factory.js';
 
 const hello = (name) => html`Hello, <strong>${name}</strong>.`;
-render(hello('Jane Doe'), document.body);
+render(hello('world'), document.body);
 ```
 
 [Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/lit-factory.html) ([Source](./demos/lit-factory.html))
@@ -123,7 +123,7 @@ The `instantiate()` method of an `ElementFactory` returns two objects: a new ele
 
 ```js
 const { instance, updater } = factory.instantiate();
-updater.update({ name: 'Rachel Garcia' });
+updater.update({ name: 'Jane' });
 ```
 
 A `NodeUpdater` is analagous to the `TemplatePart` class and its associated classes in the HTML Template Instantiation proposal. The chief difference is that a `NodeUpdater` has no direct connection to templates.
