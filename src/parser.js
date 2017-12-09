@@ -1,5 +1,7 @@
 /*
  * Default template parser for mustache syntax.
+ * 
+ * This currently supports only mustache syntax in text nodes.
  */
 
 
@@ -94,11 +96,10 @@ export function tokenizeText(text) {
 
 
 function* nextPlaceholder(text) {
-  // Match placeholders containing expressions.
-  // An expression is a set of one or more JavaScript IDs delimited by dots.
-  // The ID regex is quick and dirty, and does not match all IDs allowed
-  // by JavaScript, notably those with Unicode characters.
-  // This trims whitespace before and after the expression.
+  // Match placeholders containing expressions. An expression is a set of one or
+  // more JavaScript IDs delimited by dots. The ID regex is quick and dirty, and
+  // does not match all IDs allowed by JavaScript, notably those with Unicode
+  // characters. This trims whitespace before and after the expression.
   const placeholderRegex = /{\s*([a-zA-Z_$][0-9a-zA-Z_$]*(?:\.[a-zA-Z_$][0-9a-zA-Z_$]*)*)\s*}/g;
 
   let match = placeholderRegex.exec(text);

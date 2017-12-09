@@ -1,3 +1,7 @@
+/*
+ * NodeUpdater and associated classes for updating elements with data.
+ */
+
 import { nodeAtAddress } from './nodeAddress.js';
 
 
@@ -33,6 +37,9 @@ export class NodeUpdater {
 // }
 
 
+/*
+ * Updates the textContent of the associated node.
+ */
 export class TextContentUpdater extends NodeUpdater {
 
   constructor(node, expression) {
@@ -47,6 +54,9 @@ export class TextContentUpdater extends NodeUpdater {
 }
 
 
+/*
+ * A bundle of updaters that can be updated together.
+ */
 export class UpdaterCollection {
 
   constructor(updaters) {
@@ -62,6 +72,14 @@ export class UpdaterCollection {
 }
 
 
+/*
+ * A record with sufficient data to create a NodeUpdater.
+ * 
+ * Such records are created in the parsing process, then realized (e.g., by
+ * ElementFactory) when instantating an element.
+ * 
+ * You can think of this as a dehydrated form of NodeUpdater.
+ */
 export class UpdaterDescriptor {
 
   constructor (address, updaterClass, ...updaterArgs) {
