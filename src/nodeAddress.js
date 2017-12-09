@@ -2,7 +2,7 @@
  * A node address is an object that uniquely identifies a node in a tree *or any
  * identical clone of that tree*.
  * 
- * The address takes the form of an array of childNodes indices. The original
+ * The address takes the form of an array of childNodes indices. The addressed
  * node can be obtained by descending the tree using those indices.
  * 
  * Example: in the following tree:
@@ -15,11 +15,11 @@
  *       </p>
  *     </div>
  * 
- * The top div has address `[]`.
- * The span has address `[0]`.
- * The paragraph has address `[1]`.
- * The strong element has address `[1, 0]`.
- * The em element has address `[1, 1]`.
+ * The top div has address [].
+ * The span has address [0].
+ * The paragraph has address [1].
+ * The strong element has address [1, 0].
+ * The em element has address [1, 1].
  */
 
 
@@ -34,12 +34,15 @@ export function nodeAtAddress(root, address) {
 export function findNodeAddress(root, node) {
   if (node === root) {
     return [];
-  } else if (!node.parentNode) {
-    return null; // Not found
-  } else {
-    const parentAddress = findNodeAddress(root, node.parentNode);
-    const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-    const address = parentAddress.concat(index);
-    return address;
   }
+  
+  const parent = node.parentNode;
+  if (!parent) {
+    return null; // Not found
+  }
+
+  const parentAddress = findNodeAddress(root, parent);
+  const index = Array.prototype.indexOf.call(parent.childNodes, node);
+  const address = parentAddress.concat(index);
+  return address;
 }
