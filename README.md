@@ -143,7 +143,7 @@ Exposing updaters as a first-class object allows frameworks to construct them an
 
 ## Polyfilling
 
-This suggested API carefully avoids touching existing DOM classes like `HTMLTemplateElement`. This is done chiefly to keep the existing role of those classes as focused as possible, but this also has the effect of making polyfilling easier. An implementation can be delivered as a plain JavaScript module, simplifying adoption. The polyfill does not have to patch DOM classes, nor does it have to introduce window globals. If necessary, different versions of the polyfill could be used in a single application.
+This suggested API carefully avoids touching existing DOM classes like `HTMLTemplateElement`. This is done chiefly to keep the existing role of those classes as focused as possible, but this also has the effect of making polyfilling easier. In particular, the polyfill does not have to patch DOM classes.
 
 
 ## Future proofing
