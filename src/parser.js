@@ -95,12 +95,20 @@ export function tokenizeText(text) {
 }
 
 
+// Return the next mustache placeholder in the text.
+// Examples: {name} or { name } or {name.first}
 function* nextPlaceholder(text) {
-  // Match placeholders containing expressions. An expression is a set of one or
-  // more JavaScript IDs delimited by dots. The ID regex is quick and dirty, and
-  // does not match all IDs allowed by JavaScript, notably those with Unicode
-  // characters. This trims whitespace before and after the expression.
-  const placeholderRegex = /{\s*([a-zA-Z_$][0-9a-zA-Z_$]*(?:\.[a-zA-Z_$][0-9a-zA-Z_$]*)*)\s*}/g;
+  // Simplistic JavaScript ID pattern. Does not handle Unicode.
+  const initialChar = `[a-zA-Z_$]`;
+  const char = `[a-zA-Z_$0-9]`;
+  const id = `${initialChar}${char}*`;
+
+  // An expression is a sequence of ID delimited by dots.
+  const expression = `${id}(?:\.${id})*`;
+
+  // A placeholder is an expression and optional whitespace in curly braces.
+  const placeholder = `{\s*(${expression})\s*}`;
+  const placeholderRegex = new RegExp(placeholder, 'g');
 
   let match = placeholderRegex.exec(text);
   while (match) {

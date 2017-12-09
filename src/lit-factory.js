@@ -16,7 +16,7 @@ import ElementFactory from './ElementFactory.js';
 const marker = '**marker**';
 const commentText = `<!--${marker}-->`;
 
-// Templates we've constructed for tagged template literals we've seen.
+// Factories we've constructed for tagged template literals we've seen.
 const factories = new Map();
 
 // Updaters for containers we've rendered.

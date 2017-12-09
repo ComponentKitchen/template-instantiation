@@ -25,26 +25,21 @@
 
 // Return the node at the given address below the root.
 export function nodeAtAddress(root, address) {
-  if (address.length === 0) {
-    return root;
-  } else {
-    const index = address[0];
-    const rest = address.slice(1);
-    const element = root.childNodes[index];
-    return nodeAtAddress(element, rest);
-  }
+  return address.reduce((node, index) => node.childNodes[index], root);
 }
 
 
 // Given a node inside the tree owned by root, return its address.
+// Return null if the node doesn't exist in the tree at or below root.
 export function findNodeAddress(root, node) {
   if (node === root) {
     return [];
   } else if (!node.parentNode) {
-    return null;
+    return null; // Not found
   } else {
-    const base = findNodeAddress(root, node.parentNode);
+    const parentAddress = findNodeAddress(root, node.parentNode);
     const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
-    return base.concat(index);
+    const address = parentAddress.concat(index);
+    return address;
   }
 }
