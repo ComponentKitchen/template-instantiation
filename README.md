@@ -37,7 +37,7 @@ document.body.appendChild(instance);
 updater.update({ name: 'Rachel Garcia' });
 ```
 
-[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/hello.html) ([Source](./src/hello.html))
+[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/hello.html) ([Source](./demos/hello.html))
 
 Factoring template instantiation this way provides several benefits. Each concept ends up represented by a distinct object, which may make the model easier to explain and learn. Additionally, each of those objects can be used directly, which may broaden the application of this work.
 
@@ -85,7 +85,7 @@ const hello = (name) => html`Hello, <strong>${name}</strong>.`;
 render(hello('Jane Doe'), document.body);
 ```
 
-[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/lit-factory.html) ([Source](./src/lit-factory.html))
+[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/lit-factory.html) ([Source](./demos/lit-factory.html))
 
 It's not obvious from the above code, but the result of the `html` tagged template literal includes an `ElementFactory` that's used by the `render` call.
 
@@ -112,7 +112,7 @@ class IncrementDecrement extends HTMLElement {
 }
 ```
 
-[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/incrementDecrement.html) ([Source](./src/incrementDecrement.html))
+[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/incrementDecrement.html) ([Source](./demos/incrementDecrement.html))
 
 The current HTML Template Instantation proposal could of course deliver the same parsing efficiency internally, but the above arrangement makes it more explicit.
 
@@ -136,7 +136,7 @@ const updater = new TextContentUpdater(text);
 updater.update('Hello');
 ```
 
-[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/manual.html) ([Source](./src/manual.html))
+[Live demo](https://rawgit.com/ComponentKitchen/html-templates/master/demos/manual.html) ([Source](./demos/manual.html))
 
 Exposing updaters as a first-class object allows frameworks to construct them and use them directly, independent of `HTMLTemplateElement`. This allows other libraries, such as the hypothetical tagged template literal demo above, to generate compatible `ElementFactory` objects.
 
