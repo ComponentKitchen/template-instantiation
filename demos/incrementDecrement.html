@@ -5,8 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Increment/Decrement</title>
-
-  <script type="module" src="../src/polyfill.js"></script>
   
   <template id="template">
     <button id="decrement">-</button>
@@ -15,8 +13,10 @@
   </template>
 
   <script type="module">
+    import ElementFactory from '../src/ElementFactory.js';
+
     // Component template only needs to be parsed once.
-    const parameterizedTemplate = template.parse();
+    const factory = new ElementFactory(template);
 
     class IncrementDecrement extends HTMLElement {
 
@@ -28,7 +28,7 @@
       connectedCallback() {
         this.attachShadow({ mode: 'open' });
         // Create a new instance, and an updater that can update it with data.
-        const { instance, updater } = parameterizedTemplate.instantiate(this);
+        const { instance, updater } = factory.instantiate(this);
         this._updater = updater;
         instance.querySelector('#decrement').addEventListener('click', () => {
           this.value--;

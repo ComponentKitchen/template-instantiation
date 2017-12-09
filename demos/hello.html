@@ -4,9 +4,7 @@
 
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>HTML Template Instantiation</title>
-
-  <script type="module" src="../src/polyfill.js"></script>
+  <title>Hello, world</title>
 
   <template>
     Hello, {name}.
@@ -16,9 +14,11 @@
 
 <body>
   <script type="module">
+    import ElementFactory from '../src/ElementFactory.js';
+    
     const template = document.querySelector('template');
-    const parameterizedTemplate = template.parse();
-    const { instance, updater } = parameterizedTemplate.instantiate({
+    const factory = new ElementFactory(template);
+    const { instance, updater } = factory.instantiate({
       name: 'world'
     });
 

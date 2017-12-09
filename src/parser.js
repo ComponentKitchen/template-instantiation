@@ -1,5 +1,5 @@
 /*
- * Default template parser
+ * Default template parser for mustache syntax.
  */
 
 

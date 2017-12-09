@@ -1,15 +1,15 @@
 /*
  * A sample tagged template literal library inspired by lit-html.
  * 
- * This uses its own parser, but creates the same
- * HTMLParameterizedTemplateElement objects defined by the browser.
+ * This uses its own parser, but creates the same ElementFactory objects defined
+ * by the browser.
  */
 
 
 import { findNodeAddress } from './nodeAddress.js';
 import { parse } from './parser.js';
 import { TextContentUpdater, UpdaterDescriptor } from './updaters.js';
-import HTMLParameterizedTemplateElement from './HTMLParameterizedTemplateElement.js';
+import ElementFactory from './ElementFactory.js';
 
 
 // Constants used by our simple parser.
@@ -17,7 +17,7 @@ const marker = '**marker**';
 const commentText = `<!--${marker}-->`;
 
 // Templates we've constructed for tagged template literals we've seen.
-const templates = new Map();
+const factories = new Map();
 
 // Updaters for containers we've rendered.
 const updaters = new WeakMap();
@@ -30,21 +30,20 @@ const updaters = new WeakMap();
  * function. This will pass in the set of stings which are HTML fragments, and a
  * set of values.
  *
- * This returns a parameterized template and the original set of values.
+ * This returns an element factory and the original set of values.
  */
 export function html(strings, ...values) {
   // Do we already have a parameterized template for this set of strings?
-  let template = templates.get(strings);
-  if (!template) {
-    template = templateFromHTMLFragments(strings);
+  let factory = factories.get(strings);
+  if (!factory) {
+    factory = factoryFromHTMLFragments(strings);
     // Remember the parameterized template for next time.
-    templates.set(strings, template);
+    factories.set(strings, factory);
   }
-  const litResult = {
-    template,
+  return {
+    factory,
     values
   };
-  return litResult;
 }
 
 
@@ -55,7 +54,7 @@ export function html(strings, ...values) {
  * calls will simply update the content with new data.
  */
 export function render(litResult, container) {
-  const { template, values } = litResult;
+  const { factory, values } = litResult;
   if (!updaters.get(container)) {
     // Initial render.
     // Remove existing content.
@@ -63,7 +62,7 @@ export function render(litResult, container) {
       container.childNodes[0].remove();
     }
     // Instantiate and save our updater for later renders.
-    const { instance, updater } = template.instantiate(values);
+    const { instance, updater } = factory.instantiate(values);
     container.appendChild(instance);
     updaters.set(container, updater);
   } else {
@@ -81,7 +80,7 @@ export function render(litResult, container) {
  * This is a limited, quick-and-dirty implementation that can only handle
  * substitutions into text nodes, not attributes or node sequences.
  */
-function templateFromHTMLFragments(strings) {
+function factoryFromHTMLFragments(strings) {
 
   // Concatenate the strings to form HTML.
   // Insert comments to mark those points in the tree that will need updaters.
@@ -109,11 +108,11 @@ function templateFromHTMLFragments(strings) {
     marker.parentNode.replaceChild(new Text(), marker)
   );
   
-  // Create and return a parameterized template.
-  const parameterizedTemplate = new HTMLParameterizedTemplateElement();
-  parameterizedTemplate.content.appendChild(fragment);
-  parameterizedTemplate.updaterDescriptors = updaterDescriptors;
-  return parameterizedTemplate;
+  // Create and return an element factory.
+  const factory = new ElementFactory();
+  factory.content.appendChild(fragment);
+  factory.updaterDescriptors = updaterDescriptors;
+  return factory;
 }
 
 

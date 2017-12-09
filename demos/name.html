@@ -5,8 +5,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Last name, first name</title>
-
-  <script type="module" src="../src/polyfill.js"></script>
   
   <!-- A template showing off use of dot notation in expressions. -->
   <template id="template">
@@ -17,8 +15,10 @@
 
 <body>
   <script type="module">
-    const parameterizedTemplate = template.parse();
-    const { instance, updater } = parameterizedTemplate.instantiate({
+    import ElementFactory from '../src/ElementFactory.js';
+
+    const factor = new ElementFactory(template);
+    const { instance, updater } = factor.instantiate({
       name: {
         first: 'Jane',
         last: 'Doe'
