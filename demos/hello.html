@@ -18,9 +18,7 @@
     
     const template = document.querySelector('template');
     const factory = new ElementFactory(template);
-    const { instance, updater } = factory.instantiate({
-      name: 'world'
-    });
+    const { instance, updater } = factory.instantiate({ name: 'world' });
 
     document.body.appendChild(instance);
 
