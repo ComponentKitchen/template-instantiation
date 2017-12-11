@@ -1,4 +1,4 @@
-This repository tries out some API variations for the [HTML Template Instantiation](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Template-Instantiation.md) proposal.
+This repository tries out some API variations for the [HTML Template Instantiation](https://github.com/w3c/webcomponents/blob/gh-pages/proposals/Template-Instantiation.md) proposal. This document describes the suggestions; the rest of the files here are a hypothetical (not yet complete) polyfill to explore how it might feel to code with these suggestions in practice.
 
 The main suggestion is to consider turning the notion of updating live elements into a first-class concept, independent of `<template>` elements. The goal would be to preserve the current proposal for mustache syntax, while adding support for other types of parsers, including a means of creating updatable elements directly through imperative code.
 
@@ -12,7 +12,7 @@ The HTML Template Instantation proposal binds together several concepts: 1) a st
 ```
 
 ```js
-// Initial population from template.
+// Initial population from template, including initial data.
 let instance = template.createInstance({ name: 'world' });
 document.body.appendChild(instance);
 // Later on, update.
@@ -24,7 +24,7 @@ This is powerful, but the API is slightly awkward. As [noted](https://github.com
 It feels like there are multiple concepts at work here. Perhaps we can tease these out in the API.
 
 
-**Suggestion:** Handle syntax parsing, instantiation, and updating as conceptually separate objects. Using the same template as above:
+**Suggestion:** Handle syntax parsing, instantiation, and updating as conceptually separate steps and/or objects. Using the same template as above:
 
 ```js
 // Parse a template with mustache syntax to obtain an element factory.
@@ -41,7 +41,9 @@ updater.update({ name: 'Jane' });
 
 Factoring template instantiation this way provides several benefits. Each concept ends up represented by a distinct object, which may make the model easier to explain and learn. Additionally, each of those objects can be used directly, which may broaden the application of this work.
 
-These suggestions are essentially a refactoring of the functionality in the current HTML Template Instantiation proposal. The proposal can still address the same goals and use cases, as well as encompassing new scenarios.
+_Note: a related but separable consideration here is the shape of the API for applying updates. The current proposal uses a `value` getter/setter. This repo considers using an `update()` method instead,as described below._
+
+These suggestions are essentially a refactoring of the functionality in the current HTML Template Instantiation proposal. The proposal can still address the same goals and use cases, as well as encompassing new scenarios. The following content is not intended to address all aspects of the proposal, e.g., the definition of template types, custom template parsing, and a template type registry.
 
 
 ## HTMLTemplateElement
@@ -63,6 +65,8 @@ const factory = new ElementFactory(template);
 
 The resulting factory holds the information necessary to instantiate new elements. The constructor's `template` parameter is optional. If omitted, the relevant information for element instantation can be created imperatively.
 
+(Variation: the `HTMLElementFactory` and `ElementFactory` classes could be kept completely separate by exposing the underlying template parser and have developers invoke that. The parser would be the only class with specific knowledge of mustache syntax.)
+
 An `ElementFactory` creates a new instance via its `instantiate()` method. This returns _two_ objects: a new instance, and a `NodeUpdater` object (described below) that can update that particular instance.
 
 ```js
@@ -75,7 +79,7 @@ updater.update({ name: 'Jane' });
 
 An `ElementFactory` can be constructed by other means, not just via parsing mustache syntax in `HTMLTemplateElement` objects.
 
-For example, [lit-html](https://github.com/PolymerLabs/lit-html/) is an example of a library that creates templates and stamps out instances. In that regard, it's very similar to the HTML template instantation proposal, only it uses JavaScript tagged template literals instead of `<template>` elements. Such libraries could create `ElementFactory` objects directly. This allows the library to leverage browser performance.
+For example, [lit-html](https://github.com/PolymerLabs/lit-html/) is an example of a library that creates templates and stamps out instances. In that regard, it's very similar to the HTML template instantation proposal; it simply uses JavaScript tagged template literals instead of mustache syntax in `<template>` elements. Such libraries could create `ElementFactory` objects directly. This reduces library size and allows the library to leverage browser performance.
 
 ```js
 // A library like lit-html
@@ -119,6 +123,8 @@ The current HTML Template Instantation proposal could of course deliver the same
 
 ## NodeUpdaters
 
+_This section considers a related but separable idea of having the update API be designed for writing data, not reading and writing. We haven't seen the need to _read_ data through a template instantiation mechanism. It's possible we're overlooking important scenarios, however._
+
 The `instantiate()` method of an `ElementFactory` returns two objects: a new element instance, and a `NodeUpdater` object. A `NodeUpdater` is exposes an `update()` method updates the associated node tree to reflect new data. The `NodeUpdater` returned by `instantiate()` is bound to the new element instance, so can be invoked to update that instance:
 
 ```js
@@ -126,7 +132,7 @@ const { instance, updater } = factory.instantiate();
 updater.update({ name: 'Jane' });
 ```
 
-A `NodeUpdater` is analagous to the `TemplatePart` class and its associated classes in the HTML Template Instantiation proposal. The chief difference is that a `NodeUpdater` has no direct connection to templates.
+A `NodeUpdater` is analagous to the `TemplatePart` class and its associated classes in the HTML Template Instantiation proposal. The chief difference is that a `NodeUpdater` has no direct connection to templates. A `NodeUpdater` also applies updates itself, rather than holding data for some other entity to apply.
 
 Among other things, a developer can construct `NodeUpdater` and various subclasses directly. For example, a developer could construct a `TextContentUpdater`, a subclass of `NodeUpdater` that updates text content:
 
@@ -138,7 +144,7 @@ updater.update('Hello');
 
 [Live demo](https://rawgit.com/ComponentKitchen/template-instantiation/master/demos/manual.html) ([Source](./demos/manual.html))
 
-Exposing updaters as a first-class object allows frameworks to construct them and use them directly, independent of `HTMLTemplateElement`. This allows other libraries, such as the hypothetical tagged template literal demo above, to generate compatible `ElementFactory` objects.
+Exposing updaters as a first-class object allows frameworks to construct them and use them directly, independent of `HTMLTemplateElement`. (They are essentially curried functions, holding on to the node they will update and other information, so that they can accept a single argument: the new data to apply.) Updaters can be used on their own. They allows other libraries, such as the hypothetical tagged template literal demo above, to generate compatible `ElementFactory` objects.
 
 
 ## Polyfilling
@@ -148,7 +154,7 @@ This suggested API carefully avoids touching existing DOM classes like `HTMLTemp
 
 ## Future proofing
 
-As the web evolves, better syntaxes or approaches will be found for creating templates and generating elements. If that happens, it may be easier to deprecate or replace use of a class like `ElementFactory`, on which no other class depends, than it would be to deprecate or replace use of a method on `HTMLTemplateElement`.
+As the web evolves, better syntaxes or approaches will be found for creating templates and generating elements. If that happens, it may be easier to deprecate or replace use of an independent class like `ElementFactory` than to deprecate or replace use of a method on `HTMLTemplateElement`.
 
 If someone wants to introduce a better syntax someday, they can implement their syntax via a new class, `BetterElementFactory`. This class can consume the same `HTMLTemplateElement` we use today — the template doesn't care about the text it holds.
 
