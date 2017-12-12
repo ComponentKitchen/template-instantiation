@@ -23,18 +23,22 @@ export class NodeUpdater {
 }
 
 
-// TODO
-// export class AttributeValueUpdater extends NodeUpdater {
-//   constructor(node, attributeName, tokens) {
-//     super(node);
-//     this.attributeName = attributeName;
-//     this.tokens = tokens;
-//   }
-//   update(value) {
-//     const parts = ...
-//     return parts.join('');
-//   }
-// }
+export class AttributeValueUpdater extends NodeUpdater {
+  constructor(node, attributeName, tokens) {
+    super(node);
+    this.attributeName = attributeName;
+    this.tokens = tokens;
+  }
+  update(data) {
+    const strings = this.tokens.map(token =>
+      token.expression ?
+        this.evaluate(token.expression, data) :
+        token.static
+    );
+    const value = strings.join('');
+    this.node.setAttribute(this.attributeName, value);
+  }
+}
 
 
 /*

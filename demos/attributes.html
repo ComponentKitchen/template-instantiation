@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Attributes</title>
+
+  <template>
+    <section><h1>{name}</h1>Email: <a href="mailto:{email}">{email}</a></section>
+  </template>
+          
+</head>
+
+<body>
+  <script type="module">
+    import ElementFactory from '../src/ElementFactory.js';
+    
+    const template = document.querySelector('template');
+    const factory = new ElementFactory(template);
+    const { instance, updater } = factory.instantiate({
+      name: 'Jane Doe',
+      email: 'jane@example.com'
+    });
+
+    document.body.appendChild(instance);
+
+    // Save a reference we can play with in the console.
+    // Entering a console command like
+    //
+    //     > updater.update({ name: 'Jane' })
+    //
+    // will update the document with the new name.
+    window.updater = updater;
+  </script>
+</body>
+
+</html>

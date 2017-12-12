@@ -5,48 +5,115 @@
  */
 
 
-import { TextContentUpdater, UpdaterDescriptor } from './updaters.js';
+import { AttributeValueUpdater, TextContentUpdater, UpdaterDescriptor } from './updaters.js';
 
 
 export function parse(node) {
   if (node instanceof Text) {
     return parseTextNode(node);
-  } else {
-    const parsed = node.cloneNode(false);
-    const updaterDescriptors = [];
-    let offset = 0;
-    node.childNodes.forEach((child) => {
-      const { parsed: parsedChild, updaterDescriptors: childUpdaterDescriptors } = parse(child);
-      // Adjust the addresses in the returned descriptors to account for their
-      // actual position in the parsed tree.
-      childUpdaterDescriptors.forEach(updaterDescriptor => {
-        if (parsedChild instanceof DocumentFragment) {
-          // Will be spliced in; shift address.
-          updaterDescriptor.address[0] += offset;
-        } else {
-          // Will be added as a child, add one level of hierarchy to address.
-          updaterDescriptor.address.unshift(offset);
-        }
-      });
-      offset += parsedChild instanceof DocumentFragment ?
-        parsedChild.childNodes.length :
-        1;
-      parsed.appendChild(parsedChild);
-      updaterDescriptors.splice(updaterDescriptors.length, 0, ...childUpdaterDescriptors);
+  } else if (node instanceof DocumentFragment) {
+    return parseChildNodes(node);
+  } else if (node instanceof Element) {
+
+    const parsed = document.createElement(node.localName);
+
+    const attributeResults = parseAttributes(node);
+    attributeResults.parsed.forEach(parsedAttributeNode => {
+      parsed.setAttributeNode(parsedAttributeNode);
     });
+
+    const childNodeResults = parseChildNodes(node);
+    parsed.appendChild(childNodeResults.parsed);
+
+    const updaterDescriptors = [
+      ...attributeResults.updaterDescriptors,
+      ...childNodeResults.updaterDescriptors
+    ];
 
     return {
       parsed,
       updaterDescriptors
     };
+  } else {
+    return node.cloneNode(true);
   }
+}
+
+
+export function parseAttributes(node) {
+  const parsed = [];
+  const updaterDescriptors = [];
+  Array.prototype.forEach.call(node.attributes, attribute => {
+    const attributeResult = parseAttribute(attribute);
+    parsed.push(attributeResult.parsed);
+    if (attributeResult.updaterDescriptor) {
+      updaterDescriptors.push(attributeResult.updaterDescriptor);
+    }
+  });
+  return {
+    parsed,
+    updaterDescriptors
+  };
+}
+
+
+export function parseAttribute(attribute) {
+  const parsed = document.createAttribute(attribute.name);
+  let updaterDescriptor;
+  const tokens = tokenizeText(attribute.value);
+  const hasExpression = tokens.length > 1 || tokens[0].expression !== undefined;
+  if (hasExpression) {
+    const address = [];
+    updaterDescriptor = new UpdaterDescriptor(
+      address,
+      AttributeValueUpdater,
+      attribute.name,
+      tokens
+    );
+  } else {
+    parsed.value = attribute.value;
+  }
+  return {
+    parsed,
+    updaterDescriptor
+  };
+}
+
+
+export function parseChildNodes(node) {
+  const parsed = document.createDocumentFragment();
+  const updaterDescriptors = [];
+  let offset = 0;
+  node.childNodes.forEach((child) => {
+    const childResult = parse(child);
+    // Adjust the addresses in the returned descriptors to account for their
+    // actual position in the parsed tree.
+    childResult.updaterDescriptors.forEach(updaterDescriptor => {
+      if (childResult.parsed instanceof DocumentFragment) {
+        // Will be spliced in; shift address.
+        updaterDescriptor.address[0] += offset;
+      } else {
+        // Will be added as a child, add one level of hierarchy to address.
+        updaterDescriptor.address.unshift(offset);
+      }
+    });
+    offset += childResult.parsed instanceof DocumentFragment ?
+      childResult.parsed.childNodes.length :
+      1;
+    parsed.appendChild(childResult.parsed);
+    updaterDescriptors.splice(updaterDescriptors.length, 0, ...childResult.updaterDescriptors);
+  });
+  return {
+    parsed,
+    updaterDescriptors
+  };
 }
 
 
 export function parseTextNode(node) {
   const tokens = tokenizeText(node.textContent);
   const updaterDescriptors = [];
-  const fragment = document.createDocumentFragment();
+  const parsed = document.createDocumentFragment();
   tokens.map((token, index) => {
     const child = new Text();
     if (token.static) {
@@ -57,10 +124,10 @@ export function parseTextNode(node) {
       const updaterDescriptor = new UpdaterDescriptor(address, TextContentUpdater, expression);
       updaterDescriptors.push(updaterDescriptor);
     }
-    fragment.appendChild(child);
+    parsed.appendChild(child);
   });
   return {
-    parsed: fragment,
+    parsed,
     updaterDescriptors
   };
 }
