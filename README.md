@@ -7,7 +7,7 @@ The HTML Template Instantation proposal binds together several concepts: 1) a st
 
 ```html
 <template>
-  Hello, {name}.
+  Hello, {{name}}.
 </template>
 ```
 

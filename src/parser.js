@@ -173,8 +173,9 @@ function* nextPlaceholder(text) {
   // An expression is a sequence of ID delimited by dots.
   const expression = `${id}(?:\.${id})*`;
 
-  // A placeholder is an expression and optional whitespace in curly braces.
-  const placeholder = `{\s*(${expression})\s*}`;
+  // A placeholder is an expression + optional surrounding whitespace in double
+  // curly braces.
+  const placeholder = `{{\s*(${expression})\s*}}`;
   const placeholderRegex = new RegExp(placeholder, 'g');
 
   let match = placeholderRegex.exec(text);
