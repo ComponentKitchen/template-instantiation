@@ -1,0 +1,10 @@
+{
+  "name": "template-instantiation",
+  "version": "0.0.1",
+  "description": "Experiments with HTML Template Instantiation",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/componentkitchen/template-instantiation.git"
+  }
+}
