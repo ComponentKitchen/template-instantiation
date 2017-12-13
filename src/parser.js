@@ -15,7 +15,7 @@ export function parse(node) {
     return parseChildNodes(node);
   } else if (node instanceof Element) {
 
-    const parsed = document.createElement(node.localName);
+    const parsed = document.createElementNS(node.namespaceURI, node.localName);
 
     const attributeResults = parseAttributes(node);
     attributeResults.parsed.forEach(parsedAttributeNode => {
@@ -58,7 +58,7 @@ export function parseAttributes(node) {
 
 
 export function parseAttribute(attribute) {
-  const parsed = document.createAttribute(attribute.name);
+  const parsed = attribute.cloneNode();
   let updaterDescriptor;
   const tokens = tokenizeText(attribute.value);
   const hasExpression = tokens.length > 1 || tokens[0].expression !== undefined;
@@ -70,6 +70,7 @@ export function parseAttribute(attribute) {
       attribute.name,
       tokens
     );
+    parsed.value = '';
   } else {
     parsed.value = attribute.value;
   }
