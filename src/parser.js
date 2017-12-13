@@ -61,7 +61,8 @@ export function parseAttribute(attribute) {
   const parsed = attribute.cloneNode();
   let updaterDescriptor;
   const tokens = tokenizeText(attribute.value);
-  const hasExpression = tokens.length > 1 || tokens[0].expression !== undefined;
+  const hasExpression = tokens.length > 1 ||
+      tokens.length > 0 && tokens[0].expression !== undefined;
   if (hasExpression) {
     const address = [];
     updaterDescriptor = new UpdaterDescriptor(
