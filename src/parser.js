@@ -177,7 +177,7 @@ function* nextPlaceholder(text) {
 
   // A placeholder is an expression + optional surrounding whitespace in double
   // curly braces.
-  const placeholder = `{{\s*(${expression})\s*}}`;
+  const placeholder = `{{\\s*(${expression})\\s*}}`;
   const placeholderRegex = new RegExp(placeholder, 'g');
 
   let match = placeholderRegex.exec(text);
